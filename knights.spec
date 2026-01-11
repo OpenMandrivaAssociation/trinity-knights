@@ -9,16 +9,7 @@
 
 %define tde_pkg knights
 %define tde_prefix /opt/trinity
-%define tde_bindir %{tde_prefix}/bin
-%define tde_datadir %{tde_prefix}/share
-%define tde_docdir %{tde_datadir}/doc
-%define tde_includedir %{tde_prefix}/include
-%define tde_libdir %{tde_prefix}/%{_lib}
-%define tde_mandir %{tde_datadir}/man
-%define tde_tdeappdir %{tde_datadir}/applications/tde
-%define tde_tdedocdir %{tde_docdir}/tde
-%define tde_tdeincludedir %{tde_includedir}/tde
-%define tde_tdelibdir %{tde_libdir}/trinity
+
 
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
@@ -49,16 +40,12 @@ Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}
 
 BuildSystem:    cmake
 BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
-BuildOption:    -DCMAKE_SKIP_RPATH=OFF
-BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
-BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
-BuildOption:    -DCMAKE_INSTALL_PREFIX="%{tde_prefix}"
-BuildOption:    -DSHARE_INSTALL_PREFIX="%{tde_datadir}"
-BuildOption:    -DLIB_INSTALL_DIR="%{tde_libdir}"
+BuildOption:    -DCMAKE_INSTALL_PREFIX=%{tde_prefix}
+BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_prefix}/share
 BuildOption:    -DWITH_ALL_OPTIONS=ON
 BuildOption:    -DBUILD_ALL=ON -DBUILD_DOC=ON
 BuildOption:    -DBUILD_TRANSLATIONS=ON
+BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
 
 BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
 BuildRequires:	trinity-tdebase-devel >= %{tde_version}
@@ -106,28 +93,28 @@ Here's a quick list of Knights' key features:
 
 %conf -p
 unset QTDIR QTINC QTLIB
-export PATH="%{tde_bindir}:${PATH}"
-export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
+export PATH="%{tde_prefix}/bin:${PATH}"
+export PKG_CONFIG_PATH="%{tde_prefix}/%{_lib}/pkgconfig"
 
 
 %install -a
 %find_lang %{tde_pkg}
 
 # Fix desktop icon location
-if [ -d "%{?buildroot}%{tde_datadir}/applnk" ]; then
-  %__mkdir_p "%{?buildroot}%{tde_tdeappdir}"
-  %__mv -f "%{?buildroot}%{tde_datadir}/applnk/Games/Board/knights.desktop" "%{?buildroot}%{tde_tdeappdir}"
-  %__rm -r "%{buildroot}%{tde_datadir}/applnk"
+if [ -d "%{?buildroot}%{tde_prefix}/share/applnk" ]; then
+  %__mkdir_p "%{?buildroot}%{tde_prefix}/share/applications/tde"
+  %__mv -f "%{?buildroot}%{tde_prefix}/share/applnk/Games/Board/knights.desktop" "%{?buildroot}%{tde_prefix}/share/applications/tde"
+  %__rm -r "%{buildroot}%{tde_prefix}/share/applnk"
 fi
 
 
 %files -f %{tde_pkg}.lang
 %defattr(-,root,root,-)
-%{tde_bindir}/knights
-%{tde_tdeappdir}/knights.desktop
-%{tde_datadir}/apps/knights
-%{tde_tdedocdir}/HTML/*/knights
-%{tde_datadir}/icons/hicolor/*/*/*.png
-%{tde_datadir}/mimelnk/application/pgn.desktop
-%{tde_mandir}/man1/*.1*
+%{tde_prefix}/bin/knights
+%{tde_prefix}/share/applications/tde/knights.desktop
+%{tde_prefix}/share/apps/knights
+%{tde_prefix}/share/doc/tde/HTML/*/knights
+%{tde_prefix}/share/icons/hicolor/*/*/*.png
+%{tde_prefix}/share/mimelnk/application/pgn.desktop
+%{tde_prefix}/share/man/man1/*.1*
 
